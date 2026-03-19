@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Repository
@@ -27,4 +29,11 @@ public interface FornecedorRepository extends JpaRepository<Fornecedor, UUID>{
                                        EnumCategoriaRisco categoriaRisco,
                                        Boolean ativo,
                                        Pageable pageable);
+
+    @Query("select f.ativo, count(f.id) " +
+            "from Fornecedor f " +
+            "where 1 = 1 " +
+            "group by f.ativo " +
+            "order by f.ativo")
+    List<Object[]> obterResumoAtivosInativos();
 }

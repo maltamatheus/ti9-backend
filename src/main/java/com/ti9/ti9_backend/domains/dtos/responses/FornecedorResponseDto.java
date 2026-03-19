@@ -1,4 +1,4 @@
-package com.ti9.ti9_backend.domains.dtos;
+package com.ti9.ti9_backend.domains.dtos.responses;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -12,7 +12,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 public class FornecedorResponseDto {

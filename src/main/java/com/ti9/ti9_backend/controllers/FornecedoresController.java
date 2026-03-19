@@ -1,6 +1,7 @@
 package com.ti9.ti9_backend.controllers;
 
-import com.ti9.ti9_backend.domains.dtos.FornecedorResponseDto;
+import com.ti9.ti9_backend.domains.dtos.responses.FornecedorResponseDto;
+import com.ti9.ti9_backend.domains.entities.AvaliacaoConformidade;
 import com.ti9.ti9_backend.domains.entities.Documento;
 import com.ti9.ti9_backend.domains.entities.Fornecedor;
 import com.ti9.ti9_backend.domains.enums.EnumCategoriaRisco;
@@ -70,5 +71,15 @@ public class FornecedoresController {
     public ResponseEntity<Page<Documento>> obterDocumentos(@PathVariable UUID id,
                                                            @PageableDefault(page=0,size=10) Pageable pageable){
         return ResponseEntity.ok(fornecedoresServices.obterDocumentos(id,pageable));
+    }
+    @ResponseBody
+    @PostMapping("/{id}/avaliacoes")
+    public ResponseEntity<?> adicionarAvaliacao(@PathVariable UUID id, @RequestBody AvaliacaoConformidade avaliacaoConformidade){
+        return ResponseEntity.ok(fornecedoresServices.adicionarAvaliacao(id,avaliacaoConformidade));
+    }
+    @ResponseBody
+    @PostMapping("/importar")
+    public ResponseEntity<?> importar(){
+        return ResponseEntity.ok("Fornecedores importados");
     }
 }

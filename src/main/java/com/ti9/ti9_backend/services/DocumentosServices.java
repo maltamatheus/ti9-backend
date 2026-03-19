@@ -1,6 +1,6 @@
 package com.ti9.ti9_backend.services;
 
-import com.ti9.ti9_backend.domains.dtos.DocumentoResponseDto;
+import com.ti9.ti9_backend.domains.dtos.responses.DocumentoResponseDto;
 import com.ti9.ti9_backend.domains.entities.Documento;
 import com.ti9.ti9_backend.exceptions.RecursoNaoEncontradoException;
 import com.ti9.ti9_backend.exceptions.ValorNaoPermitidoException;

@@ -1,7 +1,8 @@
 package com.ti9.ti9_backend.services;
 
-import com.ti9.ti9_backend.domains.dtos.DocumentoResponseDto;
-import com.ti9.ti9_backend.domains.dtos.FornecedorResponseDto;
+import com.ti9.ti9_backend.domains.dtos.responses.AvaliacaoConformidadeResponseDto;
+import com.ti9.ti9_backend.domains.dtos.responses.DocumentoResponseDto;
+import com.ti9.ti9_backend.domains.dtos.responses.FornecedorResponseDto;
 import com.ti9.ti9_backend.domains.entities.AvaliacaoConformidade;
 import com.ti9.ti9_backend.domains.entities.Documento;
 import com.ti9.ti9_backend.domains.entities.Fornecedor;
@@ -88,12 +89,23 @@ public class FornecedoresServices {
         return salvaFornecedor(baseFornecedor);
     }
     public DocumentoResponseDto adicionarDocumento(UUID id, Documento documento) {
-        if(Validacoes.idCorreto(id,documento.getFornecedor().getId())) {
+        if(documento.getFornecedor() == null || (documento.getFornecedor() != null && Validacoes.idCorreto(id,documento.getFornecedor().getId()))) {
             return DocumentoResponseDto.builder()
                     .documento(documentosServices.criarDocumento(documento))
                     .build();
         } else {
             return DocumentoResponseDto.builder()
+                    .msg("Operação não executada: Id desejado é diferente do Id informado")
+                    .build();
+        }
+    }
+    public AvaliacaoConformidadeResponseDto adicionarAvaliacao(UUID id, AvaliacaoConformidade avaliacaoConformidade) {
+        if(avaliacaoConformidade.getFornecedor() == null || (avaliacaoConformidade.getFornecedor() != null && Validacoes.idCorreto(id,avaliacaoConformidade.getFornecedor().getId()))){
+            return AvaliacaoConformidadeResponseDto.builder()
+                    .avaliacaoConformidade(avaliacaoConformidadeServices.salvar(avaliacaoConformidade))
+                    .build();
+        } else {
+            return AvaliacaoConformidadeResponseDto.builder()
                     .msg("Operação não executada: Id desejado é diferente do Id informado")
                     .build();
         }
@@ -112,4 +124,5 @@ public class FornecedoresServices {
             throw new ValorNaoPermitidoException(e.getMessage());
         }
     }
+
 }
