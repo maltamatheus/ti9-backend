@@ -9,7 +9,7 @@ import java.util.Map;
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ResumoDto {
+public class ResumoAnalyticDto {
     private Map<Boolean,Long> groupAtivosInativos;
     private Map<String,Long> groupCategoriasRisco;
     private Map<String,Long> groupSegmentos;

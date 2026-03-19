@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,10 +31,33 @@ public interface FornecedorRepository extends JpaRepository<Fornecedor, UUID>{
                                        Boolean ativo,
                                        Pageable pageable);
 
-    @Query("select f.ativo, count(f.id) " +
+    @Query("select f.ativo, count(f.razaoSocial) " +
             "from Fornecedor f " +
             "where 1 = 1 " +
-            "group by f.ativo " +
+            "group by f.razaoSocial,f.ativo " +
             "order by f.ativo")
     List<Object[]> obterResumoAtivosInativos();
+    @Query("select coalesce(f.categoriaRisco,'BLANK') , count(f.razaoSocial) " +
+            "from Fornecedor f " +
+            "where 1 = 1 " +
+            "group by f.razaoSocial,f.categoriaRisco " +
+            "order by f.razaoSocial,f.categoriaRisco")
+    List<Object[]> obterResumoCategoriasRisco();
+    @Query("select coalesce(upper(f.segmento),'BLANK') , count(f.id) " +
+            "from Fornecedor f " +
+            "where 1 = 1 " +
+            "group by f.razaoSocial, f.segmento")
+    List<Object[]> obterResumoSegmento();
+    @Query("select f.razaoSocial, coalesce(upper(f.segmento),'BLANK'), " +
+            "sum(f.pontuacaoConformidade) " +
+            "from Fornecedor f " +
+            "where 1 = 1 " +
+            "group by f.razaoSocial, f.segmento " +
+            "order by f.razaoSocial,f.segmento")
+    List<Object[]> obterPontuacaoSegmento();
+    @Query("select f.razaoSocial, sum(f.pontuacaoConformidade) " +
+            "from Fornecedor f " +
+            "where 1 = 1 " +
+            "group by f.razaoSocial")
+    List<Object[]> obterPontuacao();
 }
