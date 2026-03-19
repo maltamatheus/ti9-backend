@@ -16,6 +16,6 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(ValorNaoPermitidoException.class)
     public ResponseEntity<String> handlerInvalidArgument(ValorNaoPermitidoException exception){
-        return ResponseEntity.status(400).body("Valor Inválido:\n" + exception.getMessage());
+        return ResponseEntity.status(400).body("Valor Inválido ou não permitido\n" + exception.getMessage());
     }
 }

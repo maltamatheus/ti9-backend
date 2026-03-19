@@ -1,5 +1,7 @@
 package com.ti9.ti9_backend.controllers;
 
+import com.ti9.ti9_backend.domains.dtos.FornecedorResponseDto;
+import com.ti9.ti9_backend.domains.entities.Documento;
 import com.ti9.ti9_backend.domains.entities.Fornecedor;
 import com.ti9.ti9_backend.domains.enums.EnumCategoriaRisco;
 import com.ti9.ti9_backend.mapping.dto.FornecedorUpdateDto;
@@ -21,19 +23,19 @@ public class FornecedoresController {
     private FornecedoresServices fornecedoresServices;
     @ResponseBody
     @GetMapping("/{id}")
-    public ResponseEntity<Fornecedor> obterFornecedor(@PathVariable UUID id){
+    public ResponseEntity<FornecedorResponseDto> obterFornecedor(@PathVariable UUID id){
         return ResponseEntity.ok(fornecedoresServices.obterFornecedor(id));
     }
     @ResponseBody
     @GetMapping
-    public ResponseEntity<Page<Fornecedor>> listarFornecedores(@RequestParam(required = false) String nome,
+    public ResponseEntity<Page<Fornecedor>> obterFornecedores(@RequestParam(required = false) String nome,
                                                             @RequestParam(required = false) String cnpj,
                                                             @RequestParam(required = false) String segmento,
                                                             @RequestParam(required = false) EnumCategoriaRisco categoriaRisco,
                                                             @RequestParam(required = false) Boolean ativo,
                                                             @PageableDefault(size=10,sort = "razaoSocial") Pageable pageable){
 
-        return ResponseEntity.ok(fornecedoresServices.listarFornecedores(nome,cnpj,segmento,categoriaRisco,ativo,pageable));
+        return ResponseEntity.ok(fornecedoresServices.obterFornecedores(nome,cnpj,segmento,categoriaRisco,ativo,pageable));
     }
     @ResponseBody
     @PostMapping
@@ -42,9 +44,9 @@ public class FornecedoresController {
     }
 
     @ResponseBody
-    @PutMapping
-    public ResponseEntity<Fornecedor> atualizarFornecedor(@RequestBody FornecedorUpdateDto fornecedorUpdateDto){
-        return ResponseEntity.status(HttpStatus.OK).body(fornecedoresServices.atualizarFornecedor(fornecedorUpdateDto));
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizar(@PathVariable UUID id,@RequestBody FornecedorUpdateDto fornecedorUpdateDto){
+        return ResponseEntity.status(HttpStatus.OK).body(fornecedoresServices.atualizarFornecedor(id,fornecedorUpdateDto));
     }
     @ResponseBody
     @PatchMapping("/{id}/status")
@@ -54,7 +56,19 @@ public class FornecedoresController {
 
     @ResponseBody
     @DeleteMapping("/{id}")
-    public ResponseEntity<Fornecedor> excluir(@PathVariable UUID id){
+    public ResponseEntity<Fornecedor> excluir(@PathVariable UUID id){ // Exclusão Lógica
         return ResponseEntity.ok(fornecedoresServices.excluir(id));
+    }
+
+    @ResponseBody
+    @PostMapping("/{id}/documentos")
+    public ResponseEntity<?> adicionarDocumento(@PathVariable UUID id, @RequestBody Documento documento){
+        return ResponseEntity.ok(fornecedoresServices.adicionarDocumento(id,documento));
+    }
+    @ResponseBody
+    @GetMapping("/{id}/documentos")
+    public ResponseEntity<Page<Documento>> obterDocumentos(@PathVariable UUID id,
+                                                           @PageableDefault(page=0,size=10) Pageable pageable){
+        return ResponseEntity.ok(fornecedoresServices.obterDocumentos(id,pageable));
     }
 }

@@ -21,10 +21,10 @@ public interface FornecedorRepository extends JpaRepository<Fornecedor, UUID>{
             "and (f.segmento = :segmento or :segmento is null) " +
             "and (f.categoriaRisco = :categoriaRisco or :categoriaRisco is null) " +
             "and (f.ativo = :ativo or :ativo is null) " )
-    Page<Fornecedor> getFornecedores(String nome,
-                                     String cnpj,
-                                     String segmento,
-                                     EnumCategoriaRisco categoriaRisco,
-                                     Boolean ativo,
-                                     Pageable pageable);
+    Page<Fornecedor> obterFornecedores(String nome,
+                                       String cnpj,
+                                       String segmento,
+                                       EnumCategoriaRisco categoriaRisco,
+                                       Boolean ativo,
+                                       Pageable pageable);
 }
