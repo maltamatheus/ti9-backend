@@ -1,5 +1,6 @@
 package com.ti9.ti9_backend.exceptionhandler;
 
+import com.ti9.ti9_backend.exceptions.OperacaoNaoRealizadaException;
 import com.ti9.ti9_backend.exceptions.RecursoNaoEncontradoException;
 import com.ti9.ti9_backend.exceptions.ValorNaoPermitidoException;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,10 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(ValorNaoPermitidoException.class)
     public ResponseEntity<String> handlerInvalidArgument(ValorNaoPermitidoException exception){
-        return ResponseEntity.status(400).body("Valor Inválido ou não permitido\n" + exception.getMessage());
+        return ResponseEntity.status(400).body(exception.getMessage());
+    }
+    @ExceptionHandler(OperacaoNaoRealizadaException.class)
+    public ResponseEntity<String> handlerOperationError(OperacaoNaoRealizadaException exception){
+        return ResponseEntity.status(400).body(exception.getMessage());
     }
 }

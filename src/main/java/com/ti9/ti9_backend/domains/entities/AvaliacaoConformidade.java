@@ -1,13 +1,10 @@
 package com.ti9.ti9_backend.domains.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ti9.ti9_backend.domains.collections.Criterio;
+import com.ti9.ti9_backend.domains.embbedables.Criterio;
 import com.ti9.ti9_backend.domains.enums.EnumResultado;
-import com.ti9.ti9_backend.domains.enums.EnumStatus;
-import com.ti9.ti9_backend.domains.enums.EnumTipoDocumento;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,7 +21,7 @@ public class AvaliacaoConformidade {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name="id_fornecedor")
+    @JoinColumn(name="id_fornecedor",nullable = false)
     private Fornecedor fornecedor;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

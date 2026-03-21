@@ -2,9 +2,11 @@ package com.ti9.ti9_backend.services;
 
 import com.ti9.ti9_backend.domains.dtos.ConformidadeAnalyticDto;
 import com.ti9.ti9_backend.domains.dtos.ResumoAnalyticDto;
+import com.ti9.ti9_backend.repositories.AvaliacaoConformidadeRepository;
 import com.ti9.ti9_backend.repositories.DocumentoRepository;
 import com.ti9.ti9_backend.repositories.FornecedorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,6 +21,8 @@ public class AnalyticsServices {
     private FornecedorRepository fornecedorRepository;
     @Autowired
     private DocumentoRepository documentoRepository;
+    @Autowired
+    private AvaliacaoConformidadeRepository avaliacaoConformidadeRepository;
 
     public ResumoAnalyticDto obterResumos(){
         //Resumo - Ativos e Inativos
@@ -54,7 +58,41 @@ public class AnalyticsServices {
     public ConformidadeAnalyticDto obterConformidades(){
         return ConformidadeAnalyticDto.builder()
                 .mediaPontuacaoSegmento(getMediaPontuacaoSegmento())
+                .evolucaoTemporalFornecedor(getEvolucaoTemporalFornecedor())
+                .melhores(getMelhores())
+                .piores(getPiores())
                 .build();
+    }
+
+    private Map<String, Long> getMelhores() {
+        Map<String,Long> melhores = new LinkedHashMap<>();
+        List<Object[]> melhoresRows = avaliacaoConformidadeRepository.obterMelhores(PageRequest.of(0,10));
+        for (Object[] row : melhoresRows){
+            melhores.put((String) row[0],(Long) row[1]);
+        }
+        return melhores;
+    }
+    private Map<String, Long> getPiores() {
+        Map<String,Long> piores = new LinkedHashMap<>();
+        List<Object[]> pioresRows = avaliacaoConformidadeRepository.obterPiores(PageRequest.of(0,10));
+        for (Object[] row : pioresRows){
+            piores.put((String) row[0],(Long) row[1]);
+        }
+        return piores;
+    }
+
+    private Map<String,Map<LocalDate,Long>> getEvolucaoTemporalFornecedor() {
+        List<Object[]> evolucaoTemporal = avaliacaoConformidadeRepository.obterEvolucaoTemporalConformidade();
+        Map<String,Map<LocalDate,Long>> evolucaoTemporalFornecedor = new LinkedHashMap<>();
+        for (Object[] row:evolucaoTemporal){
+            String fornecedor = (String) row[0];
+            LocalDate dataAvaliacao = (LocalDate)  row[1];
+            Long pontuacaoTotal = (Long) row[2];
+            Map<LocalDate,Long> pontuacaoPorDataAvaliacao = new LinkedHashMap<>();
+            pontuacaoPorDataAvaliacao.put(dataAvaliacao,pontuacaoTotal);
+            evolucaoTemporalFornecedor.put(fornecedor,pontuacaoPorDataAvaliacao);
+        }
+        return evolucaoTemporalFornecedor;
     }
 
     private Map<String, Map<String, Double>> getMediaPontuacaoSegmento() {

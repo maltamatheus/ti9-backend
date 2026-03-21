@@ -20,4 +20,24 @@ public interface AvaliacaoConformidadeRepository extends JpaRepository<Avaliacao
             "where 1 = 1 " +
             "and a.fornecedor.id = :idFornecedor " )
     List<AvaliacaoConformidade> obterAvaliacoesFornecedor(UUID idFornecedor);
+
+    @Query("select ac.fornecedor.razaoSocial," +
+            "ac.dataAvaliacao," +
+            "sum(ac.pontuacaoTotal) " +
+            "from AvaliacaoConformidade ac " +
+            "group by ac.fornecedor.razaoSocial, " +
+            "ac.dataAvaliacao")
+    List<Object[]> obterEvolucaoTemporalConformidade();
+    @Query("select ac.fornecedor.razaoSocial," +
+            "sum(ac.pontuacaoTotal) " +
+            "from AvaliacaoConformidade ac " +
+            "group by ac.fornecedor.razaoSocial " +
+            "order by sum(ac.pontuacaoTotal) ")
+    List<Object[]> obterMelhores(Pageable pageable);
+    @Query("select ac.fornecedor.razaoSocial," +
+            "sum(ac.pontuacaoTotal) " +
+            "from AvaliacaoConformidade ac " +
+            "group by ac.fornecedor.razaoSocial " +
+            "order by sum(ac.pontuacaoTotal) desc")
+    List<Object[]> obterPiores(Pageable pageable);
 }

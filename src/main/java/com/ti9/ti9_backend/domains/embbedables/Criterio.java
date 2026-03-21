@@ -1,4 +1,4 @@
-package com.ti9.ti9_backend.domains.collections;
+package com.ti9.ti9_backend.domains.embbedables;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;

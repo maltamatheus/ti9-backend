@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 @Data
@@ -11,7 +12,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ConformidadeAnalyticDto {
     private Map<String,Map<String,Double>> mediaPontuacaoSegmento;
-    private Map<String,Long> evolucaoTemporalFornecedor;
+    private Map<String,Map<LocalDate,Long>> evolucaoTemporalFornecedor;
     private Map<String,Long> melhores;
     private Map<String,Long> piores;
 }

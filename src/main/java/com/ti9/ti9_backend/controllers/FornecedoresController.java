@@ -12,9 +12,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -77,9 +80,9 @@ public class FornecedoresController {
     public ResponseEntity<?> adicionarAvaliacao(@PathVariable UUID id, @RequestBody AvaliacaoConformidade avaliacaoConformidade){
         return ResponseEntity.ok(fornecedoresServices.adicionarAvaliacao(id,avaliacaoConformidade));
     }
+    @PostMapping(value="/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseBody
-    @PostMapping("/importar")
-    public ResponseEntity<?> importar(){
-        return ResponseEntity.ok("Fornecedores importados");
+    public ResponseEntity<List<Fornecedor>> uploadFornecedores(@RequestPart("file") MultipartFile file){
+        return ResponseEntity.ok(fornecedoresServices.uploadFornecedoresFile(file));
     }
 }

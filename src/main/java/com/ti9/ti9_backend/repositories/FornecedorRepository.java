@@ -60,4 +60,5 @@ public interface FornecedorRepository extends JpaRepository<Fornecedor, UUID>{
             "where 1 = 1 " +
             "group by f.razaoSocial")
     List<Object[]> obterPontuacao();
+
 }

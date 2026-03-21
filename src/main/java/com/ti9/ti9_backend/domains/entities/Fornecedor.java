@@ -59,4 +59,12 @@ public class Fornecedor {
 
     @Column(columnDefinition = "text")
     private String observacoes;
+
+    public void setCnpj(String cnpj) {
+        this.cnpj = cnpj.replaceAll("[^a-zA-Z0-9]", "");
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone.replaceAll("[^a-zA-Z0-9]", "");
+    }
 }

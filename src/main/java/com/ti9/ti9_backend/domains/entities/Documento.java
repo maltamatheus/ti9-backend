@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name="tab_documento")
+@Table(name="tab_documentos")
 public class Documento {
 
     @Id
@@ -21,7 +21,7 @@ public class Documento {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name="id_fornecedor")
+    @JoinColumn(name="id_fornecedor",nullable = false)
     private Fornecedor fornecedor;
 
     @Enumerated(EnumType.STRING)
