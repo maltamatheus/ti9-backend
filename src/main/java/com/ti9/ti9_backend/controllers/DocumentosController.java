@@ -3,6 +3,7 @@ package com.ti9.ti9_backend.controllers;
 import com.ti9.ti9_backend.domains.entities.Documento;
 import com.ti9.ti9_backend.mapping.dto.DocumentoUpdateDto;
 import com.ti9.ti9_backend.services.DocumentosServices;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -14,8 +15,9 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/documentos")
+@AllArgsConstructor
 public class DocumentosController {
-    @Autowired
+
     private DocumentosServices documentosServices;
     @ResponseBody
     @PutMapping("/{id}")

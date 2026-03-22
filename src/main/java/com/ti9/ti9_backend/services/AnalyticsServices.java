@@ -8,6 +8,7 @@ import com.ti9.ti9_backend.domains.enums.EnumStatus;
 import com.ti9.ti9_backend.repositories.AvaliacaoConformidadeRepository;
 import com.ti9.ti9_backend.repositories.DocumentoRepository;
 import com.ti9.ti9_backend.repositories.FornecedorRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -20,12 +21,13 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@AllArgsConstructor
 public class AnalyticsServices {
-    @Autowired
+
     private FornecedorRepository fornecedorRepository;
-    @Autowired
+
     private DocumentoRepository documentoRepository;
-    @Autowired
+
     private AvaliacaoConformidadeRepository avaliacaoConformidadeRepository;
 
     public ResumoAnalyticResponseDto obterResumos(){

@@ -3,15 +3,16 @@ package com.ti9.ti9_backend.controllers;
 import com.ti9.ti9_backend.domains.dtos.responses.ConformidadeAnalyticResponseDto;
 import com.ti9.ti9_backend.domains.dtos.responses.ResumoAnalyticResponseDto;
 import com.ti9.ti9_backend.services.AnalyticsServices;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/analytics")
+@AllArgsConstructor
 public class AnalyticsController {
 
-    @Autowired
     private AnalyticsServices analyticsServices;
     @ResponseBody
     @GetMapping("/resumo")

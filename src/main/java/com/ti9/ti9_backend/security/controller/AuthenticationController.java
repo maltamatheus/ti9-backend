@@ -1,6 +1,7 @@
 package com.ti9.ti9_backend.security.controller;
 
 import com.ti9.ti9_backend.exceptions.OperacaoNaoRealizadaException;
+import com.ti9.ti9_backend.exceptions.ValorNaoPermitidoException;
 import com.ti9.ti9_backend.security.User;
 import com.ti9.ti9_backend.security.records.AuthenticationDto;
 import com.ti9.ti9_backend.security.records.LoginResponseDto;
@@ -9,6 +10,7 @@ import com.ti9.ti9_backend.security.records.UserRegisteredDto;
 import com.ti9.ti9_backend.security.repositories.UserRepository;
 import com.ti9.ti9_backend.security.services.TokenService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
+@AllArgsConstructor
 public class AuthenticationController {
-    @Autowired
+
     private AuthenticationManager authenticationManager;
-    @Autowired
     private UserRepository userRepository;
-    @Autowired
     private TokenService tokenService;
 
     @PostMapping("/login")
@@ -51,7 +52,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody @Valid RegisterDto registerDto){
         if(userRepository.findByLogin(registerDto.login()) != null){
-            return ResponseEntity.badRequest().build();
+            throw new ValorNaoPermitidoException("Login já registrado entre os usuários");
         }
 
         try{

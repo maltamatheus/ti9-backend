@@ -8,6 +8,7 @@ import com.ti9.ti9_backend.exceptions.OperacaoNaoRealizadaException;
 import com.ti9.ti9_backend.exceptions.RecursoNaoEncontradoException;
 import com.ti9.ti9_backend.repositories.AvaliacaoConformidadeRepository;
 import com.ti9.ti9_backend.repositories.FornecedorRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +19,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class AvaliacaoConformidadeServices {
-    @Autowired
     private AvaliacaoConformidadeRepository avaliacaoConformidadeRepository;
-    @Autowired
     private FornecedorRepository fornecedorRepository;
 
     public AvaliacaoConformidade criarAvaliacaoConformidade(AvaliacaoConformidadeDto avaliacaoDto){

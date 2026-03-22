@@ -11,6 +11,7 @@ import com.ti9.ti9_backend.domains.enums.EnumCategoriaRisco;
 import com.ti9.ti9_backend.mapping.dto.FornecedorUpdateDto;
 import com.ti9.ti9_backend.services.FornecedoresServices;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +27,8 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/fornecedores")
+@AllArgsConstructor
 public class FornecedoresController {
-    @Autowired
     private FornecedoresServices fornecedoresServices;
     @ResponseBody
     @GetMapping("/{id}")

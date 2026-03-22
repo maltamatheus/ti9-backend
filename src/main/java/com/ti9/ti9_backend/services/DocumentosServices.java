@@ -11,6 +11,7 @@ import com.ti9.ti9_backend.mapping.DocumentoMapper;
 import com.ti9.ti9_backend.mapping.dto.DocumentoUpdateDto;
 import com.ti9.ti9_backend.repositories.DocumentoRepository;
 import com.ti9.ti9_backend.repositories.FornecedorRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,12 +24,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class DocumentosServices {
-    @Autowired
+
     private DocumentoRepository documentoRepository;
-    @Autowired
     private FornecedorRepository fornecedorRepository;
-    @Autowired
     private DocumentoMapper documentoMapper;
 
     public Documento criarDocumento(DocumentoDto documentoDto){

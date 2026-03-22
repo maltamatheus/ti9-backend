@@ -24,6 +24,7 @@ import com.ti9.ti9_backend.mapping.FornecedorMapper;
 import com.ti9.ti9_backend.mapping.dto.FornecedorUpdateDto;
 import com.ti9.ti9_backend.repositories.FornecedorRepository;
 import com.ti9.ti9_backend.utils.ValidacoesUtils;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,14 +41,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class FornecedoresServices {
-    @Autowired
+
     private FornecedorRepository fornecedorRepository;
-    @Autowired
     private DocumentosServices documentosServices;
-    @Autowired
     private AvaliacaoConformidadeServices avaliacaoConformidadeServices;
-    @Autowired
     private FornecedorMapper fornecedorMapper;
     public Fornecedor criarFornecedor(FornecedorDto fornecedor){
         return salvaFornecedor(setDtoToEntityToInsert(fornecedor));
