@@ -20,6 +20,7 @@ public class DocumentosController {
     @ResponseBody
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable UUID id, @RequestBody DocumentoUpdateDto documentoUpdateDto){
+        documentoUpdateDto.setId(id);
         return ResponseEntity.ok(documentosServices.atualizarDocumento(id,documentoUpdateDto));
     }
 

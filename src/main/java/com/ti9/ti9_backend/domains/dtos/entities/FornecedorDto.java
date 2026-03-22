@@ -1,47 +1,54 @@
-package com.ti9.ti9_backend.mapping.dto;
+package com.ti9.ti9_backend.domains.dtos.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ti9.ti9_backend.domains.embbedables.Endereco;
 import com.ti9.ti9_backend.domains.enums.EnumCategoriaRisco;
 import com.ti9.ti9_backend.domains.enums.EnumPorte;
 import com.ti9.ti9_backend.domains.enums.EnumTipoFornecedor;
+import com.ti9.ti9_backend.utils.StringUtils;
 import com.ti9.ti9_backend.utils.annotations.TelefoneValido;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 import org.hibernate.validator.constraints.br.CNPJ;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class FornecedorUpdateDto {
-    private UUID id;
-
+public class FornecedorDto {
     @Size(max = 10,message = "Tamanho não pode ser superior à 10 caracteres")
     private String codigo;
 
-    @Size(min = 3,message = "Tamanho não pode ser inferior à 3 caracteres")
+    @NotBlank(message = "Razão Social é obrigatório")
+    @Size(min = 3,message = "Tamanho não pode ser inferior à 10 caracteres")
     private String razaoSocial;
 
-    @CNPJ(message = "CNPJ é inválido")
-    @NotBlank(message = "Razão Social é obrigatório")
+    @CNPJ(message = "CNPJ inválido")
+    @NotBlank(message = "CNPJ é obrigatório")
     private String cnpj;
 
+    @Enumerated(EnumType.STRING)
     private EnumTipoFornecedor tipo;
 
     @NotBlank(message = "Segmento é obrigatório")
     private String segmento;
 
+    @Enumerated(EnumType.STRING)
     private EnumPorte porte;
 
+    @Embedded
     private Endereco endereco;
 
-    @TelefoneValido(message = "Número de telefone é inválido")
+    @TelefoneValido(message = "Celular inválido")
+    @Schema(example = "Formatos Válidos(Celular): (11) 91234-5678, 11912345678, 11 912345678.")
     private String telefone;
 
     @Email(message = "Favor informar E-mail válido")
@@ -50,13 +57,26 @@ public class FornecedorUpdateDto {
     @URL(message = "Endereço de site inválido")
     private String site;
 
-    private Boolean ativo;
+    private Boolean ativo = true;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime dataCadastro;
+    private LocalDateTime dataCadastro = LocalDateTime.now(); // ADICIONAR NA HORA DE SALVAR
+
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime dataUltimaAtualizacao;
+    private LocalDateTime dataUltimaAtualizacao; // REMOVER?
+
+    @Enumerated(EnumType.STRING)
     private EnumCategoriaRisco categoriaRisco;
+
     private Integer pontuacaoConformidade;
+
     private String observacoes;
+
+    public void setCnpj(String cnpj) {
+        this.cnpj = StringUtils.filtraDigitosNumericos(cnpj);
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = StringUtils.filtraDigitosNumericos(telefone);
+    }
 }

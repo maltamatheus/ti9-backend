@@ -10,7 +10,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring",
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
 public interface FornecedorMapper {
-
     @Mapping(target = "id",ignore = true)
+    @Mapping(target = "dataCadastro",ignore=true)
+    @Mapping(target = "dataUltimaAtualizacao", expression = "java(java.time.LocalDateTime.now())")
     void updateFornecedorFromDto(FornecedorUpdateDto fornecedorUpdateDto, @MappingTarget Fornecedor fornecedor);
 }

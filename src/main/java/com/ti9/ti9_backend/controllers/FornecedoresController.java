@@ -1,5 +1,8 @@
 package com.ti9.ti9_backend.controllers;
 
+import com.ti9.ti9_backend.domains.dtos.entities.AvaliacaoConformidadeDto;
+import com.ti9.ti9_backend.domains.dtos.entities.DocumentoDto;
+import com.ti9.ti9_backend.domains.dtos.entities.FornecedorDto;
 import com.ti9.ti9_backend.domains.dtos.responses.FornecedorResponseDto;
 import com.ti9.ti9_backend.domains.entities.AvaliacaoConformidade;
 import com.ti9.ti9_backend.domains.entities.Documento;
@@ -7,6 +10,7 @@ import com.ti9.ti9_backend.domains.entities.Fornecedor;
 import com.ti9.ti9_backend.domains.enums.EnumCategoriaRisco;
 import com.ti9.ti9_backend.mapping.dto.FornecedorUpdateDto;
 import com.ti9.ti9_backend.services.FornecedoresServices;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,23 +37,24 @@ public class FornecedoresController {
     @ResponseBody
     @GetMapping
     public ResponseEntity<Page<Fornecedor>> obterFornecedores(@RequestParam(required = false) String nome,
-                                                            @RequestParam(required = false) String cnpj,
-                                                            @RequestParam(required = false) String segmento,
-                                                            @RequestParam(required = false) EnumCategoriaRisco categoriaRisco,
-                                                            @RequestParam(required = false) Boolean ativo,
-                                                            @PageableDefault(size=10,sort = "razaoSocial") Pageable pageable){
+                                                              @RequestParam(required = false) String cnpj,
+                                                              @RequestParam(required = false) String segmento,
+                                                              @RequestParam(required = false) EnumCategoriaRisco categoriaRisco,
+                                                              @RequestParam(required = false) Boolean ativo,
+                                                              @PageableDefault(size=10,sort = "razaoSocial") Pageable pageable){
+
 
         return ResponseEntity.ok(fornecedoresServices.obterFornecedores(nome,cnpj,segmento,categoriaRisco,ativo,pageable));
     }
     @ResponseBody
     @PostMapping
-    public ResponseEntity<Fornecedor> criarFornecedor(@RequestBody Fornecedor fornecedor){
-        return ResponseEntity.status(HttpStatus.CREATED).body(fornecedoresServices.criarFornecedor(fornecedor));
+    public ResponseEntity<Fornecedor> criarFornecedor(@Valid @RequestBody FornecedorDto fornecedorDto){
+        return ResponseEntity.status(HttpStatus.CREATED).body(fornecedoresServices.criarFornecedor(fornecedorDto));
     }
 
     @ResponseBody
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable UUID id,@RequestBody FornecedorUpdateDto fornecedorUpdateDto){
+    public ResponseEntity<?> atualizar(@PathVariable UUID id, @Valid @RequestBody FornecedorUpdateDto fornecedorUpdateDto){
         return ResponseEntity.status(HttpStatus.OK).body(fornecedoresServices.atualizarFornecedor(id,fornecedorUpdateDto));
     }
     @ResponseBody
@@ -66,8 +71,9 @@ public class FornecedoresController {
 
     @ResponseBody
     @PostMapping("/{id}/documentos")
-    public ResponseEntity<?> adicionarDocumento(@PathVariable UUID id, @RequestBody Documento documento){
-        return ResponseEntity.ok(fornecedoresServices.adicionarDocumento(id,documento));
+    public ResponseEntity<?> adicionarDocumento(@PathVariable UUID id, @Valid @RequestBody DocumentoDto documentoDto){
+        documentoDto.setIdFornecedor(id);
+        return ResponseEntity.ok(fornecedoresServices.adicionarDocumento(documentoDto));
     }
     @ResponseBody
     @GetMapping("/{id}/documentos")
@@ -77,8 +83,9 @@ public class FornecedoresController {
     }
     @ResponseBody
     @PostMapping("/{id}/avaliacoes")
-    public ResponseEntity<?> adicionarAvaliacao(@PathVariable UUID id, @RequestBody AvaliacaoConformidade avaliacaoConformidade){
-        return ResponseEntity.ok(fornecedoresServices.adicionarAvaliacao(id,avaliacaoConformidade));
+    public ResponseEntity<?> adicionarAvaliacao(@PathVariable UUID id, @RequestBody @Valid AvaliacaoConformidadeDto avaliacaoConformidadeDto){
+        avaliacaoConformidadeDto.setIdFornecedor(id);
+        return ResponseEntity.ok(fornecedoresServices.adicionarAvaliacao(avaliacaoConformidadeDto));
     }
     @PostMapping(value="/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseBody

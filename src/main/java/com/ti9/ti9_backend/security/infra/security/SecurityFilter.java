@@ -17,7 +17,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
-@Slf4j
 public class SecurityFilter extends OncePerRequestFilter {
     @Autowired
     private TokenService tokenService;
@@ -32,7 +31,6 @@ public class SecurityFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(user,null,user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info("Security Context: {}",SecurityContextHolder.getContext().toString());
         }
         filterChain.doFilter(request,response);
     }

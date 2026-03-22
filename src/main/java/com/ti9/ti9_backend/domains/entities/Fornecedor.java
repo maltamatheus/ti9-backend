@@ -1,6 +1,5 @@
 package com.ti9.ti9_backend.domains.entities;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ti9.ti9_backend.domains.embbedables.Endereco;
 import com.ti9.ti9_backend.domains.enums.EnumCategoriaRisco;
 import com.ti9.ti9_backend.domains.enums.EnumPorte;
@@ -13,7 +12,7 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name="tab_fornecedor")
+@Table(name="tab_fornecedores")
 public class Fornecedor {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -40,15 +39,16 @@ public class Fornecedor {
     @Embedded
     private Endereco endereco;
 
-    private String telefone; // Validar formato
-    private String email; // Validar formato
-    private String site; // validar URL
-    private Boolean ativo = true;
+    private String telefone;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime dataCadastro = LocalDateTime.now();
+    private String email;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private String site;
+
+    private Boolean ativo;
+
+    private LocalDateTime dataCadastro;
+
     private LocalDateTime dataUltimaAtualizacao;
 
     @Enumerated(EnumType.STRING)
@@ -59,12 +59,4 @@ public class Fornecedor {
 
     @Column(columnDefinition = "text")
     private String observacoes;
-
-    public void setCnpj(String cnpj) {
-        this.cnpj = cnpj.replaceAll("[^a-zA-Z0-9]", "");
-    }
-
-    public void setTelefone(String telefone) {
-        this.telefone = telefone.replaceAll("[^a-zA-Z0-9]", "");
-    }
 }

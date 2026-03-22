@@ -1,38 +1,29 @@
-package com.ti9.ti9_backend.domains.entities;
+package com.ti9.ti9_backend.domains.dtos.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ti9.ti9_backend.domains.embbedables.Criterio;
 import com.ti9.ti9_backend.domains.enums.EnumResultado;
-import jakarta.persistence.*;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Data
-@Entity
-@Table(name="tab_avaliacao_conformidade")
-public class AvaliacaoConformidade {
+public class AvaliacaoConformidadeDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
-    @ManyToOne
-    @JoinColumn(name="id_fornecedor",nullable = false)
-    private Fornecedor fornecedor;
+    private UUID idFornecedor;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataAvaliacao;
 
     private String avaliador;
 
-    @ElementCollection
-    @CollectionTable(name="tab_criterios",joinColumns = @JoinColumn(name="nome_criterio"))
-    private Set<Criterio> criterios;
+    private List<Criterio> criterios;
 
     private Long pontuacaoTotal;
 
@@ -42,6 +33,5 @@ public class AvaliacaoConformidade {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate proximaAvaliacao;
 
-    @Column(columnDefinition = "text")
     private String comentarios;
 }

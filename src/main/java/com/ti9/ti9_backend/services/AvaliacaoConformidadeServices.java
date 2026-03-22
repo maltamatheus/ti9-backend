@@ -1,29 +1,31 @@
 package com.ti9.ti9_backend.services;
 
+import com.ti9.ti9_backend.domains.dtos.entities.AvaliacaoConformidadeDto;
 import com.ti9.ti9_backend.domains.embbedables.Criterio;
 import com.ti9.ti9_backend.domains.entities.AvaliacaoConformidade;
+import com.ti9.ti9_backend.domains.entities.Fornecedor;
+import com.ti9.ti9_backend.exceptions.OperacaoNaoRealizadaException;
 import com.ti9.ti9_backend.exceptions.RecursoNaoEncontradoException;
 import com.ti9.ti9_backend.repositories.AvaliacaoConformidadeRepository;
+import com.ti9.ti9_backend.repositories.FornecedorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class AvaliacaoConformidadeServices {
     @Autowired
     private AvaliacaoConformidadeRepository avaliacaoConformidadeRepository;
+    @Autowired
+    private FornecedorRepository fornecedorRepository;
 
-    public AvaliacaoConformidade criarAvaliacaoConformidade(AvaliacaoConformidade avaliacao){
-        avaliacao.setDataAvaliacao(LocalDateTime.now());
-        Long pontuacaoTotal = 0l;
-        for (Criterio criterio : avaliacao.getCriterios()){
-            pontuacaoTotal += criterio.getPontuacao();
-        }
-        avaliacao.setPontuacaoTotal(pontuacaoTotal);
-        return salvar(avaliacao);
+    public AvaliacaoConformidade criarAvaliacaoConformidade(AvaliacaoConformidadeDto avaliacaoDto){
+        return salvar(dtoToEntityToInsert(avaliacaoDto));
     }
     public List<AvaliacaoConformidade> obterAvaliacoesFornecedor(UUID idFornecedor){
         return avaliacaoConformidadeRepository.obterAvaliacoesFornecedor(idFornecedor);
@@ -40,5 +42,28 @@ public class AvaliacaoConformidadeServices {
     private AvaliacaoConformidade getAvaliacaoConformidade(UUID id){
         return avaliacaoConformidadeRepository.findById(id)
                 .orElseThrow(()->new RecursoNaoEncontradoException("Avaliação não encontrada"));
+    }
+
+    private AvaliacaoConformidade dtoToEntityToInsert(AvaliacaoConformidadeDto dto){
+        AvaliacaoConformidade novaAvaliacao = new AvaliacaoConformidade();
+        Optional<Fornecedor> fornecedorOpt = fornecedorRepository.findById(dto.getIdFornecedor());
+        if(fornecedorOpt.isPresent()){
+            novaAvaliacao.setFornecedor(fornecedorOpt.get());
+        } else {
+            throw new OperacaoNaoRealizadaException("Falha ao indicar fornecedor na Avaliação");
+        }
+        novaAvaliacao.setDataAvaliacao(LocalDateTime.now());
+        novaAvaliacao.setAvaliador(dto.getAvaliador());
+        novaAvaliacao.setCriterios(new LinkedHashSet<>(dto.getCriterios()));
+        Long pontuacaoTotal = 0l;
+        for(Criterio criterio : dto.getCriterios()){
+            pontuacaoTotal += criterio.getPontuacao();
+        }
+        novaAvaliacao.setPontuacaoTotal(pontuacaoTotal);
+        novaAvaliacao.setResultado(dto.getResultado());
+        novaAvaliacao.setProximaAvaliacao(dto.getProximaAvaliacao());
+        novaAvaliacao.setComentarios(dto.getComentarios());
+
+        return novaAvaliacao;
     }
 }

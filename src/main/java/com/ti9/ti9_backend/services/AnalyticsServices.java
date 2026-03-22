@@ -1,7 +1,10 @@
 package com.ti9.ti9_backend.services;
 
-import com.ti9.ti9_backend.domains.dtos.ConformidadeAnalyticDto;
-import com.ti9.ti9_backend.domains.dtos.ResumoAnalyticDto;
+import com.ti9.ti9_backend.domains.dtos.responses.ConformidadeAnalyticResponseDto;
+import com.ti9.ti9_backend.domains.dtos.responses.ResumoAnalyticResponseDto;
+import com.ti9.ti9_backend.domains.dtos.responses.StatusDocumentosAnalyticResponseDto;
+import com.ti9.ti9_backend.domains.enums.EnumCategoriaRisco;
+import com.ti9.ti9_backend.domains.enums.EnumStatus;
 import com.ti9.ti9_backend.repositories.AvaliacaoConformidadeRepository;
 import com.ti9.ti9_backend.repositories.DocumentoRepository;
 import com.ti9.ti9_backend.repositories.FornecedorRepository;
@@ -10,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,46 +28,54 @@ public class AnalyticsServices {
     @Autowired
     private AvaliacaoConformidadeRepository avaliacaoConformidadeRepository;
 
-    public ResumoAnalyticDto obterResumos(){
+    public ResumoAnalyticResponseDto obterResumos(){
+        return ResumoAnalyticResponseDto.builder()
+                .groupAtivosInativos(getAtivosInativos())
+                .groupCategoriasRisco(getCategoriasRisco())
+                .groupSegmentos(getSegmento())
+                .documentosVencidos(getTotalDocumentosVencidos())
+                .build();
+    }
+    public ConformidadeAnalyticResponseDto obterConformidades(){
+        ConformidadeAnalyticResponseDto res = ConformidadeAnalyticResponseDto.builder()
+                .mediaPontuacaoSegmento(getMediaPontuacaoSegmento())
+                .evolucaoTemporalFornecedor(getEvolucaoTemporalFornecedor())
+                .melhores(getMelhores())
+                .piores(getPiores())
+                .build();
+
+        return res;
+    }
+    private Long getTotalDocumentosVencidos() {
+        return documentoRepository.obterResumoDocumentosVencidos(LocalDate.now());
+    }
+    private Map<String, Long> getSegmento() {
+        //Resumo - Segmento
+        Map<String,Long> groupSegmento = new HashMap<>();
+        List<Object[]> rows = fornecedorRepository.obterResumoSegmento();
+        for(Object[] row : rows){
+            groupSegmento.put((String) row[0],(Long) row[1]);
+        }
+        return groupSegmento;
+    }
+    private Map<EnumCategoriaRisco, Long> getCategoriasRisco() {
+        //Resumo - Categorias Risco
+        Map<EnumCategoriaRisco,Long> groupCategoriaRisco = new HashMap<>();
+        List<Object[]> rows = fornecedorRepository.obterResumoCategoriasRisco();
+        for(Object[] row : rows){
+            groupCategoriaRisco.put((EnumCategoriaRisco) row[0],(Long) row[1]);
+        }
+        return groupCategoriaRisco;
+    }
+    private Map<Boolean, Long> getAtivosInativos() {
         //Resumo - Ativos e Inativos
         Map<Boolean,Long> groupAtivosInativos = new HashMap<>();
         List<Object[]> rows = fornecedorRepository.obterResumoAtivosInativos();
         for(Object[] row : rows){
             groupAtivosInativos.put((Boolean) row[0],(Long) row[1]);
         }
-
-        //Resumo - Categorias Risco
-        Map<String,Long> groupCategoriaRisco = new HashMap<>();
-        List<Object[]> rows01 = fornecedorRepository.obterResumoCategoriasRisco();
-        for(Object[] row : rows01){
-            groupCategoriaRisco.put((String) row[0],(Long) row[1]);
-        }
-
-        //Resumo - Segmento
-        Map<String,Long> groupSegmento = new HashMap<>();
-        List<Object[]> rows02 = fornecedorRepository.obterResumoSegmento();
-        for(Object[] row : rows02){
-            groupCategoriaRisco.put((String) row[0],(Long) row[1]);
-        }
-
-        //Construindo o Retorno
-        return ResumoAnalyticDto.builder()
-                .groupAtivosInativos(groupAtivosInativos)
-                .groupCategoriasRisco(groupCategoriaRisco)
-                .groupSegmentos(groupSegmento)
-                .documentosVencidos(documentoRepository.obterResumoDocumentosVencidos(LocalDate.now()))
-                .build();
+        return groupAtivosInativos;
     }
-
-    public ConformidadeAnalyticDto obterConformidades(){
-        return ConformidadeAnalyticDto.builder()
-                .mediaPontuacaoSegmento(getMediaPontuacaoSegmento())
-                .evolucaoTemporalFornecedor(getEvolucaoTemporalFornecedor())
-                .melhores(getMelhores())
-                .piores(getPiores())
-                .build();
-    }
-
     private Map<String, Long> getMelhores() {
         Map<String,Long> melhores = new LinkedHashMap<>();
         List<Object[]> melhoresRows = avaliacaoConformidadeRepository.obterMelhores(PageRequest.of(0,10));
@@ -80,51 +92,69 @@ public class AnalyticsServices {
         }
         return piores;
     }
-
-    private Map<String,Map<LocalDate,Long>> getEvolucaoTemporalFornecedor() {
+    private Map<String,Map<LocalDateTime,Long>> getEvolucaoTemporalFornecedor() {
         List<Object[]> evolucaoTemporal = avaliacaoConformidadeRepository.obterEvolucaoTemporalConformidade();
-        Map<String,Map<LocalDate,Long>> evolucaoTemporalFornecedor = new LinkedHashMap<>();
+        Map<String,Map<LocalDateTime,Long>> evolucaoTemporalFornecedor = new LinkedHashMap<>();
         for (Object[] row:evolucaoTemporal){
             String fornecedor = (String) row[0];
-            LocalDate dataAvaliacao = (LocalDate)  row[1];
+            LocalDateTime dataAvaliacao = (LocalDateTime)  row[1];
             Long pontuacaoTotal = (Long) row[2];
-            Map<LocalDate,Long> pontuacaoPorDataAvaliacao = new LinkedHashMap<>();
+            Map<LocalDateTime,Long> pontuacaoPorDataAvaliacao = new LinkedHashMap<>();
             pontuacaoPorDataAvaliacao.put(dataAvaliacao,pontuacaoTotal);
             evolucaoTemporalFornecedor.put(fornecedor,pontuacaoPorDataAvaliacao);
         }
         return evolucaoTemporalFornecedor;
     }
-
     private Map<String, Map<String, Double>> getMediaPontuacaoSegmento() {
         //Media Pontuacao Segmento
-        Map<String,Long> pontuacao = new LinkedHashMap<>();
+        Map<String,Long> pontuacaoFornecedores = new LinkedHashMap<>();
         Map<String,String> fornecedorSegmentoKey = new LinkedHashMap<>();
         Map<Map<String,String>,Long> pontuacaoSegmento = new LinkedHashMap<>();
         Map<String,Map<String,Double>> mediaPontuacaoSegmento = new LinkedHashMap<>();
 
         //Carregando a Pontuacao por Fornecedor
-        List<Object[]> pontuacaoFornecedores = fornecedorRepository.obterPontuacao();
-        for (Object[] pontuacaoFornecedor : pontuacaoFornecedores){
-            pontuacao.put((String)pontuacaoFornecedor[0],(Long) pontuacaoFornecedor[1]);
+        List<Object[]> qrypontuacaoFornecedores = fornecedorRepository.obterPontuacao();
+        for (Object[] pontuacaoFornecedor : qrypontuacaoFornecedores){
+            Long ptoFornecedor = (Long) pontuacaoFornecedor[1] == null ? 0 : (Long) pontuacaoFornecedor[1];
+            pontuacaoFornecedores.put((String)pontuacaoFornecedor[0],ptoFornecedor);
         }
 
-        //Carregando a Pontuacao por Segmento de cada Fornecedor
+        //Carregando a Pontuacao de cada Fornecedor por Segmento
         List<Object[]> rowsPontuacaoSegmento = fornecedorRepository.obterPontuacaoSegmento();
         for(Object[] rowPontuacaoSegmento : rowsPontuacaoSegmento) {
             fornecedorSegmentoKey.put((String) rowPontuacaoSegmento[0], (String) rowPontuacaoSegmento[1]);
+            Long ptoSegmento = (Long) rowPontuacaoSegmento[2] == null ? 0 : (Long) rowPontuacaoSegmento[2];
             pontuacaoSegmento.put(fornecedorSegmentoKey, (Long) rowPontuacaoSegmento[2]);
         }
 
         for(Map.Entry<String,String> fornecedorSegmento: fornecedorSegmentoKey.entrySet()){
             String fornecedor = fornecedorSegmento.getKey();
-            String segmento = fornecedorSegmentoKey.get(fornecedorSegmento);
-            Long pontosPorSegmento = pontuacaoSegmento.get(fornecedorSegmento);
-            Long totalPontosFornecedor = pontuacao.get(fornecedorSegmento.getKey());
+            String segmento = fornecedorSegmentoKey.get(fornecedor);
+            Long pontosPorSegmento = pontuacaoSegmento.get(fornecedorSegmento) == null ? 0 : pontuacaoSegmento.get(fornecedorSegmento) ;
+            Long totalPontosFornecedor = pontuacaoFornecedores.get(fornecedorSegmento.getKey()) == null ? 0 : pontuacaoFornecedores.get(fornecedorSegmento.getKey());
             Map<String,Double> pontuacaoMediaPorSegmento = new LinkedHashMap<>();
-            pontuacaoMediaPorSegmento.put(segmento,Double.valueOf(pontosPorSegmento/totalPontosFornecedor));
+            try{
+                pontuacaoMediaPorSegmento.put(segmento,Double.valueOf(pontosPorSegmento/totalPontosFornecedor));
+            } catch (ArithmeticException exception){
+                pontuacaoMediaPorSegmento.put(segmento,Double.valueOf(0));
+            }
             mediaPontuacaoSegmento.put(fornecedor,pontuacaoMediaPorSegmento);
         }
         return mediaPontuacaoSegmento;
     }
 
+    public StatusDocumentosAnalyticResponseDto obterStatusDocumentos(){
+        Map<String,Long> statusDocumentos = new LinkedHashMap<>();
+
+        List<Object[]> rows = documentoRepository.obterStatusDocumentos();
+        for(Object[] row : rows){
+            EnumStatus statusRetornado = (EnumStatus) row[0];
+            Long qtde = (Long) row[1] == null ? 0 : (Long) row[1];
+            statusDocumentos.put(statusRetornado.name(),qtde);
+        }
+
+        return StatusDocumentosAnalyticResponseDto.builder()
+                .statusDocumentos(statusDocumentos)
+                .build();
+    }
 }

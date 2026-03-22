@@ -37,4 +37,10 @@ public interface DocumentoRepository extends JpaRepository<Documento, UUID>{
             "where 1 = 1 " +
             "and d.dataValidade < :dataVencto")
     Long obterResumoDocumentosVencidos(LocalDate dataVencto);
+    @Query("select d.status,count(d.id) " +
+            "from Documento d " +
+            "where 1 = 1 " +
+            "group by d.status")
+    List<Object[]> obterStatusDocumentos();
+
 }

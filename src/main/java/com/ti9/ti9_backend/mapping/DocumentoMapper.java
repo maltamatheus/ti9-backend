@@ -12,5 +12,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface DocumentoMapper {
 
     @Mapping(target = "id",ignore = true)
+    @Mapping(target = "dataUpload",ignore = true)
+    @Mapping(source = "idFornecedor", target = "fornecedor.id",ignore = true)
     void updateDocumentoFromDto(DocumentoUpdateDto documentoUpdateDto, @MappingTarget Documento documento);
 }

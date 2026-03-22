@@ -2,9 +2,13 @@ package com.ti9.ti9_backend.services;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
+import com.ti9.ti9_backend.domains.dtos.entities.AvaliacaoConformidadeDto;
+import com.ti9.ti9_backend.domains.dtos.entities.DocumentoDto;
+import com.ti9.ti9_backend.domains.dtos.entities.FornecedorDto;
 import com.ti9.ti9_backend.domains.dtos.responses.AvaliacaoConformidadeResponseDto;
 import com.ti9.ti9_backend.domains.dtos.responses.DocumentoResponseDto;
 import com.ti9.ti9_backend.domains.dtos.responses.FornecedorResponseDto;
+import com.ti9.ti9_backend.domains.embbedables.Criterio;
 import com.ti9.ti9_backend.domains.embbedables.Endereco;
 import com.ti9.ti9_backend.domains.entities.AvaliacaoConformidade;
 import com.ti9.ti9_backend.domains.entities.Documento;
@@ -19,6 +23,7 @@ import com.ti9.ti9_backend.exceptions.ValorNaoPermitidoException;
 import com.ti9.ti9_backend.mapping.FornecedorMapper;
 import com.ti9.ti9_backend.mapping.dto.FornecedorUpdateDto;
 import com.ti9.ti9_backend.repositories.FornecedorRepository;
+import com.ti9.ti9_backend.utils.ValidacoesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,8 +49,16 @@ public class FornecedoresServices {
     private AvaliacaoConformidadeServices avaliacaoConformidadeServices;
     @Autowired
     private FornecedorMapper fornecedorMapper;
-    public Fornecedor criarFornecedor(Fornecedor fornecedor){
-        return salvaFornecedor(fornecedor);
+    public Fornecedor criarFornecedor(FornecedorDto fornecedor){
+        return salvaFornecedor(setDtoToEntityToInsert(fornecedor));
+    }
+    public List<Fornecedor> criarFornecedorUsandoLista(List<FornecedorDto> fornecedores){
+        List<Fornecedor> novosFornecedores = new ArrayList<>();
+        fornecedores.forEach(f -> {
+            Fornecedor novoFornecedor = setDtoToEntityToInsert(f);
+            novosFornecedores.add(novoFornecedor);
+        });
+        return fornecedorRepository.saveAll(novosFornecedores);
     }
 
     public FornecedorResponseDto obterFornecedor(UUID idFornecedor){
@@ -103,26 +116,25 @@ public class FornecedoresServices {
         baseFornecedor.setAtivo(false);
         return salvaFornecedor(baseFornecedor);
     }
-    public DocumentoResponseDto adicionarDocumento(UUID id, Documento documento) {
-        Documento novoDocumento = null;
-        if(documento.getId() == null){
-            documento.setFornecedor(obterFornecedor(id).getFornecedor());
-            novoDocumento = documentosServices.criarDocumento(documento);
-        } else if (documento.getFornecedor() == null ){
-            throw new OperacaoNaoRealizadaException("Fornecedor do Documento é obrigatório");
+    public DocumentoResponseDto adicionarDocumento(DocumentoDto documentoDto) {
+        if(documentoDto.getDataEmissao().isAfter(documentoDto.getDataValidade())){
+            throw new ValorNaoPermitidoException("Data da Validade deve ser maior que a Data da Emissão");
         }
+        Documento novoDocumento = documentosServices.criarDocumento(documentoDto);
         return DocumentoResponseDto.builder()
                     .documento(novoDocumento)
                     .build();
     }
-    public AvaliacaoConformidadeResponseDto adicionarAvaliacao(UUID id, AvaliacaoConformidade avaliacaoConformidade) {
-        AvaliacaoConformidade novaAvaliacao = null;
-        if(avaliacaoConformidade.getId() == null){
-            avaliacaoConformidade.setFornecedor(obterFornecedor(id).getFornecedor());
-            novaAvaliacao = avaliacaoConformidadeServices.criarAvaliacaoConformidade(avaliacaoConformidade);
-        } else if (avaliacaoConformidade.getFornecedor() == null ){
-            throw new OperacaoNaoRealizadaException("Fornecedor da Avaliação é obrigatório");
+    public AvaliacaoConformidadeResponseDto adicionarAvaliacao(AvaliacaoConformidadeDto avaliacaoConformidadeDto) {
+
+        if(avaliacaoConformidadeDto.getDataAvaliacao().toLocalDate().isAfter(avaliacaoConformidadeDto.getProximaAvaliacao())){
+            throw new ValorNaoPermitidoException("Data da Próxima Avaliação deve ser maior que a Data da Avaliação");
         }
+
+        AvaliacaoConformidade novaAvaliacao = avaliacaoConformidadeServices.criarAvaliacaoConformidade(avaliacaoConformidadeDto);
+
+        atualizaPontuacaoFornecedor(obterFornecedor(avaliacaoConformidadeDto.getIdFornecedor()).getFornecedor());
+
         return AvaliacaoConformidadeResponseDto.builder()
                 .avaliacaoConformidade(novaAvaliacao)
                 .build();
@@ -131,7 +143,7 @@ public class FornecedoresServices {
         return documentosServices.obterDocumentosFornecedor(id,pageable);
     }
     public List<Fornecedor> uploadFornecedoresFile(MultipartFile file) {
-        List<Fornecedor> fornecedores = new ArrayList<>();
+        List<FornecedorDto> fornecedores = new ArrayList<>();
         try{
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
                  CSVReader csvReader = new CSVReader(reader)) {
@@ -140,10 +152,10 @@ public class FornecedoresServices {
                 csvReader.readNext(); // Pular o cabeçalho, se houver
                 while ((line = csvReader.readNext()) != null) {
                     String registro = line[0];
-                    Fornecedor f = new Fornecedor();
+                    FornecedorDto f = new FornecedorDto();
                     f.setCodigo(registro.split(";")[0]);
                     f.setRazaoSocial(registro.split(";")[1]);
-                    f.setCnpj(registro.split(";")[3]);
+                    f.setCnpj(ValidacoesUtils.validaCnpj(registro.split(";")[3]));
                     f.setTipo(EnumTipoFornecedor.valueOf(registro.split(";")[4]));
                     f.setSegmento(registro.split(";")[5]);
                     f.setPorte(EnumPorte.valueOf(registro.split(";")[6]));
@@ -157,8 +169,8 @@ public class FornecedoresServices {
                     end.setCep(registro.split(";")[12]);
                     f.setEndereco(end);
 
-                    f.setTelefone(registro.split(";")[13]);
-                    f.setEmail(registro.split(";")[14]);
+                    f.setTelefone(ValidacoesUtils.validaTelefone(registro.split(";")[13]));
+                    f.setEmail(ValidacoesUtils.emailValidador(registro.split(";")[14]));
                     f.setCategoriaRisco(EnumCategoriaRisco.valueOf(registro.split(";")[15]));
 
                     fornecedores.add(f);
@@ -168,7 +180,7 @@ public class FornecedoresServices {
             } catch (CsvValidationException ex) {
                 throw new RuntimeException(ex);
             }
-            return fornecedorRepository.saveAll(fornecedores);
+            return criarFornecedorUsandoLista(fornecedores);
         } catch (Exception e){
             throw new OperacaoNaoRealizadaException("Falha no import do arquivo de fornecedores\n" + e.getMessage());
         }
@@ -186,4 +198,38 @@ public class FornecedoresServices {
         }
     }
 
+    private Fornecedor setDtoToEntityToInsert(FornecedorDto dto){
+        Fornecedor novoFornecedor = new Fornecedor();
+        novoFornecedor.setCodigo(dto.getCodigo());
+        novoFornecedor.setRazaoSocial(dto.getRazaoSocial());
+        novoFornecedor.setCnpj(dto.getCnpj());
+        novoFornecedor.setTipo(dto.getTipo());
+        novoFornecedor.setSegmento(dto.getSegmento());
+        novoFornecedor.setPorte(dto.getPorte());
+        novoFornecedor.setEndereco(dto.getEndereco());
+        novoFornecedor.setTelefone(dto.getTelefone());
+        novoFornecedor.setEmail(dto.getEmail());
+        novoFornecedor.setSite(dto.getSite());
+        novoFornecedor.setAtivo(true);
+        novoFornecedor.setDataCadastro(LocalDateTime.now());
+        novoFornecedor.setDataUltimaAtualizacao(null);
+        novoFornecedor.setCategoriaRisco(dto.getCategoriaRisco());
+        novoFornecedor.setPontuacaoConformidade(0);
+        novoFornecedor.setObservacoes(dto.getObservacoes());
+
+        return novoFornecedor;
+    }
+
+    public Fornecedor atualizaPontuacaoFornecedor(Fornecedor fornecedor){
+        List<AvaliacaoConformidade> avaliacoesFornecedor = avaliacaoConformidadeServices.obterAvaliacoesFornecedor(fornecedor.getId());
+
+        Integer pontuacaoTotal = 0;
+        for(AvaliacaoConformidade avaliacao : avaliacoesFornecedor){
+            for (Criterio criterio : avaliacao.getCriterios()){
+                pontuacaoTotal += criterio.getPontuacao();
+            }
+        }
+        fornecedor.setPontuacaoConformidade(pontuacaoTotal);
+        return salvaFornecedor(fornecedor);
+    }
 }
