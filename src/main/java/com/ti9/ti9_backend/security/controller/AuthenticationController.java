@@ -58,12 +58,16 @@ public class AuthenticationController {
         try{
             User user = new User(registerDto.login(),
                     new BCryptPasswordEncoder().encode(registerDto.password())
-                    ,registerDto.role());
+                    ,registerDto.role(), registerDto.enabled());
             User savedUser = userRepository.save(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(new UserRegisteredDto(savedUser.getLogin(),savedUser.getRole()));
         } catch (Exception e){
             throw new OperacaoNaoRealizadaException("Falha ao registrar o usuário\n" + e.getMessage());
         }
 
+    }
+    @PostMapping("/auth/logout")
+    public ResponseEntity<String> logout(){
+        return ResponseEntity.ok("Logout realizado com sucesso");
     }
 }

@@ -1,7 +1,5 @@
 package com.ti9.ti9_backend.security;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ti9.ti9_backend.security.enums.EnumUserRole;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,15 +21,21 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+    @Column(name = "login",nullable = false,unique = true)
     private String login;
+    @Column(name = "password",nullable = false)
     private String password;
     @Enumerated(EnumType.STRING)
+    @Column(name="role",nullable = false)
     private EnumUserRole role;
+    @Column(name="ativo")
+    private Boolean enabled;
 
-    public User(String login, String password, EnumUserRole role) {
+    public User(String login, String password, EnumUserRole role, Boolean enabled) {
         this.login = login;
         this.password = password;
         this.role = role;
+        this.enabled = enabled;
     }
 
     @Override
@@ -69,6 +73,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.enabled;
     }
 }

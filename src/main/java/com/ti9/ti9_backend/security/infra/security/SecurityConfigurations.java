@@ -30,21 +30,22 @@ public class SecurityConfigurations {
                                     .permitAll()
                                 .requestMatchers(HttpMethod.POST,"/auth/login")
                                     .permitAll()
-//                                .anyRequest().permitAll() // LIBERA TUDO
-                                .requestMatchers("/**")
-                                    .hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.GET,"/fornecedores**"
-                                                                        ,"/documentos**"
-                                                                        ,"/avaliacoes**")
-                                    .hasAuthority("ROLE_VIEWER")
-                                .requestMatchers(HttpMethod.GET,"/analytics/**")
-                                    .hasRole("AUDITOR")
-                                .requestMatchers(HttpMethod.POST,"/auth/refresh")
-                                    .authenticated()
-                                .anyRequest()
-                                .authenticated()
+                                .anyRequest().permitAll() // LIBERA TUDO
+//                                .requestMatchers("/**")
+//                                    .hasRole("ADMIN")
+//                                .requestMatchers(HttpMethod.GET,"/fornecedores**"
+//                                                                        ,"/documentos**"
+//                                                                        ,"/avaliacoes**")
+//                                    .hasAuthority("ROLE_VIEWER")
+//                                .requestMatchers(HttpMethod.GET,"/analytics/**")
+//                                    .hasRole("AUDITOR")
+//                                .requestMatchers(HttpMethod.POST,"/auth/refresh")
+//                                    .authenticated()
+//                                .anyRequest()
+//                                .authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout((logout) -> logout.logoutSuccessUrl("/auth/logout"))
                 .build();
     }
     @Bean
