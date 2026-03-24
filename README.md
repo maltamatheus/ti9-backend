@@ -2,7 +2,6 @@
 Teste empresa TI9
 
 Autor: Matheus Malta de Aguiar
-Contato: https://wa.me/5511981332765
 
 Observações:
 - Versão Java 17
