@@ -60,10 +60,10 @@ public class FornecedorDto {
     private Boolean ativo = true;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime dataCadastro = LocalDateTime.now(); // ADICIONAR NA HORA DE SALVAR
+    private LocalDateTime dataCadastro;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime dataUltimaAtualizacao; // REMOVER?
+    private LocalDateTime dataUltimaAtualizacao;
 
     @Enumerated(EnumType.STRING)
     private EnumCategoriaRisco categoriaRisco;

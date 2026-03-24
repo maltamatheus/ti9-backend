@@ -30,9 +30,9 @@ public class SecurityConfigurations {
                                     .permitAll()
                                 .requestMatchers(HttpMethod.POST,"/auth/login")
                                     .permitAll()
-                                .anyRequest().permitAll() // LIBERA TUDO
-//                                .requestMatchers("/**")
-//                                    .hasRole("ADMIN")
+//                                .anyRequest().permitAll() // LIBERA TUDO
+                                .requestMatchers("/**")
+                                    .hasRole("ADMIN")
 //                                .requestMatchers(HttpMethod.GET,"/fornecedores**"
 //                                                                        ,"/documentos**"
 //                                                                        ,"/avaliacoes**")
